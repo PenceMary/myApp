@@ -1,47 +1,52 @@
 package com.example.myapplication
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapplication.ui.theme.MyApplicationTheme
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private val cards = listOf("3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2", "🃏")
+    private val cardCounts = mutableMapOf<String, Int>()
+    private val cardTextViews = mutableMapOf<String, TextView>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+        setContentView(R.layout.activity_main)
+
+        // 初始化每张牌的计数
+        cards.forEach { card ->
+            cardCounts[card] = 4
+        }
+
+        // 绑定按钮和TextView，并设置点击事件
+        cards.forEachIndexed { index, card ->
+            val buttonId = resources.getIdentifier("button_$index", "id", packageName)
+            val textViewId = resources.getIdentifier("text_$index", "id", packageName)
+
+            val button = findViewById<Button>(buttonId)
+            val textView = findViewById<TextView>(textViewId)
+
+            cardTextViews[card] = textView
+            textView.text = cardCounts[card].toString()
+
+            button.setOnClickListener {
+                val currentCount = cardCounts[card] ?: 4
+                if (currentCount > 0) {
+                    cardCounts[card] = currentCount - 1
+                    textView.text = cardCounts[card].toString()
                 }
             }
         }
-    }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("Android1")
+        // 设置Reset按钮
+        val resetButton = findViewById<Button>(R.id.button_reset)
+        resetButton.setOnClickListener {
+            cards.forEach { card ->
+                cardCounts[card] = 4
+                cardTextViews[card]?.text = "4"
+            }
+        }
     }
 }
